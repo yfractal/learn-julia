@@ -1,10 +1,4 @@
 using FactCheck
-# (defn contextual-eval [ctx expr]
-#   (eval
-#    `(let [~@(mapcat (fn [[k v]] [k `'~v]) ctx)]
-#       ~expr)))
-#
-# (contextual-eval '{a 1, b 2} '(+ a b))
 
 function _let_block(dic_expr)
     function get_assignments(dic_content)
@@ -46,3 +40,38 @@ facts("contextual-eval") do
     end
 end
 
+
+# Defining control structures do_until
+macro do_until(expr::Expr)
+    function get_ifexpr(lines)
+        line, ifexp = lines[1], Expr(:if)
+        ifexp.args = line.args
+
+        length(lines) >= 2 && push!(ifexp.args, get_ifexpr(lines[2:end]))
+
+        push!(ifexp.args, nothing)
+
+        ifexp
+    end
+
+    lines = []
+
+    i = 1
+    for line in expr.args
+        (i % 2) == 0 && push!(lines, line)
+        i += 1
+    end
+
+    esc(get_ifexpr(lines))
+end
+
+facts("do_until") do
+    result_array = []
+
+    @do_until begin
+        iseven(2), push!(result_array, "Enven")
+        (0 == 1), push!(result_array, "Zero")
+    end
+
+    @fact result_array => ["Enven"]
+end
