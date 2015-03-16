@@ -75,3 +75,30 @@ facts("do_until") do
 
     @fact result_array => ["Enven"]
 end
+
+# Anaphora
+# awhen
+# (defmacro awhen [expr & body]
+#   `(let [~'it ~expr]
+#      (if ~'it
+#        (do ~@body))))
+
+# (awhen [1 2 3] (it 2))
+
+macro awhen(expr, body)
+    esc(quote
+        let it = $(expr)
+          if it != nothing
+            $(body)
+          end
+        end
+   end)
+end
+
+facts("awhen") do
+    context("awhen") do
+        @fact @awhen([1, 2, 3], it[2]) => 2
+        @fact @awhen(nothing, it[2]) => nothing
+    end
+end
+
