@@ -102,3 +102,32 @@ facts("awhen") do
     end
 end
 
+# resolulation
+# http://www.jianshu.com/p/9f09ed930015
+module Foo
+x = "I am in Foo"
+macro foo(exp)
+    :($(exp))
+end
+end
+@expand Foo.@foo( x )
+
+
+module Foo
+x = 100
+macro foo(exp)
+    :($(esc(exp)))
+end
+end
+@expand Foo.@foo( x )
+
+module Foo
+x = 100
+macro foo(exp)
+    esc(:($(exp)))
+end
+end
+
+@expand Foo.@foo( x )
+
+# resolulation end
