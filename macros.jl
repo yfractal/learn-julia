@@ -85,11 +85,11 @@ end
 
 # (awhen [1 2 3] (it 2))
 
-macro awhen(expr, body)
+macro awhen(expr, body...)
     esc(quote
         let it = $(expr)
           if it != nothing
-            $(body)
+            $(body...)
           end
         end
    end)
@@ -99,6 +99,9 @@ facts("awhen") do
     context("awhen") do
         @fact @awhen([1, 2, 3], it[2]) => 2
         @fact @awhen(nothing, it[2]) => nothing
+        # do not use @awhen([1, 2, 3], x = 2, it[x])
+        # see more https://groups.google.com/d/msg/julia-users/9KANwP6ZO2M/WWP8_k6gygQJ
+        @fact (@awhen [1, 2, 3] x = 2 it[x]) => 2
     end
 end
 
